@@ -1,4 +1,4 @@
-REPOSITORY                         TAG                 IMAGE ID            CREATED             SIZ
+REPOSITORY                         TAG                 IMAGE ID            CREATED             SIZE
 vladimir.denisov/ubuntu-tmp-file   latest              07180d153c22        29 seconds ago      115MB
 ubuntu                             16.04               7aa3602ab41e        2 weeks ago         115MB
 hello-world                        latest              2cb0d9787c4d        4 weeks ago         1.85kB
