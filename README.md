@@ -1,6 +1,102 @@
 # VladimirDe_microservices
 VladimirDe microservices repository
 
+
+## Homework-14: Docker образы. Микросервисы
+
+### 14.1 Что было сделано
+
+Основные задания:
+
+- Созданы docker образы для микросервисов comment, ui, post
+- Создана docker сеть для приложения reddit
+- Создан docker том для данных mongodb
+- Запущены контейнеры на основе созданных образов
+
+Задания со *:
+
+- Изменение сетевых алиасов, использование env переменных
+
+```bash
+# Пример решения
+docker run -d --network=reddit --network-alias=post_db --network-alias=comment_db mongo:latest
+docker run -d --network=reddit --network-alias=post_alias -e 'POST_DATABASE_HOST=post_db' vladimirdenisov69/post:1.0
+docker run -d --network=reddit --network-alias=comment_alias -e 'COMMENT_DATABASE_HOST=comment_db' vladimirdenisov69/comment:1.0
+docker run -d --network=reddit --network-alias=ui_alias -e 'POST_SERVICE_HOST=post_alias' -e 'COMMENT_SERVICE_HOST=comment_alias' vladimirdenisov69/ui:1.0
+```
+
+Задания со *:
+
+- Уменьшены размеры образов comment, ui, post
+
+```bash
+# Размеры образов ui
+REPOSITORY                TAG                 IMAGE ID            CREATED             SIZE
+vladimirdenisov69/ui      3.2                 17812b3e799b        11 seconds ago      34.5MB # alpine, multi-stage build, cache cleaning
+vladimirdenisov69/ui      3.1                 33170cebce0d        4 minutes ago       37.5MB # alpine, multi-stage build
+vladimirdenisov69/ui      3.0                 b6012d168c44        14 minutes ago      210MB # alpine
+vladimirdenisov69/ui      2.0                 5f494c53de90        23 minutes ago      460MB # ubuntu 16.04
+vladimirdenisov69/ui      1.0                 1dc4afe3d94c        26 minutes ago      777MB # ruby 2.2
+```
+
+```bash
+# Размеры образов post
+REPOSITORY                TAG                 IMAGE ID            CREATED             SIZE
+vladimirdenisov69/post    2.2                 e13a2539eef3        6 minutes ago       35.1MB # alpine:3.8, multi-stage build, venv packages cleaning, pyc files removing
+vladimirdenisov69/post    2.1                 a4978e47831e        13 minutes ago      57.5MB # alpine:3.8, multi-stage build, venv packages cleaning
+vladimirdenisov69/post    2.0                 324095723244        21 minutes ago      62.6MB # alpine:3.8, multi-stage build
+vladimirdenisov69/post    1.0                 228a932d5c0d        3 hours ago         102MB # python:3.6.0-alpine
+```
+
+```bash
+# Размеры образов comment
+REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
+vladimirdenisov69/comment   2.0                 d42d889bed54        18 seconds ago      30.1MB # alpine, multi-stage build, cache cleaning
+vladimirdenisov69/comment   1.0                 d1e034889328        4 hours ago         769MB # ruby 2.2
+```
+
+### 14.2 Как запустить проект
+
+- Предполагается, что перед запуском проекта уже существует **docker-host** и имеет адрес **docker_host_ip**
+
+```bash
+docker-machine ls
+NAME          ACTIVE   DRIVER   STATE     URL                       SWARM   DOCKER        ERRORS
+docker-host   *        google   Running   tcp://docker_host_ip:2376           v18.06.0-ce
+
+eval $(docker-machine env docker-host)
+```
+
+- Создание docker образов микросервисов comment, post, ui
+
+```bash
+cd src
+docker build -t vladimirdenisov69/comment:2.0  ./comment
+docker build -t vladimirdenisov69/post:2.2  ./post-py
+docker build -t vladimirdenisov69/ui:3.2  ./ui
+```
+
+- Запуск проекта
+
+```bash
+docker network create reddit
+docker volume create reddit_db
+
+docker run -d --network=reddit --network-alias=post_db \
+ --network-alias=comment_db -v reddit_db:/data/db mongo:latest
+
+docker run -d --network=reddit --network-alias=post vladimirdenisov69/post:2.2
+
+docker run -d --network=reddit --network-alias=comment vladimirdenisov69/comment:2.0
+
+docker run -d --network=reddit -p 9292:9292 vladimirdenisov69/ui:3.2
+```
+
+### 14.3 Как проверить проект
+
+После запуска, reddit приложение будет доступно по адресу <http://docker_host_ip:9292>, при этом можно создать пост и оставить комментарий.
+
+
 ## Homework-13: Docker контейнеры. Docker под капотом
 ### 13.1 Что было сделано
 Основные задания:
