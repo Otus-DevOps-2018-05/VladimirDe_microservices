@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Aleksandr Loktionov
+  author: Vladimir Denisov
   description: gitlab runner role
   company: none
   license: BSD
