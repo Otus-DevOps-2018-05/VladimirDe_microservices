@@ -18,13 +18,13 @@ services:
       - front_net
 
   post:
-    image: "${USERNAME}/post:${post_version:-2.2}"
+    image: "${USER_NAME}/post:${post_version:-2.2}"
     networks:
       - back_net
       - front_net
 
   comment:
-    image: "${USERNAME}/comment:${comment_version:-2.2}"
+    image: "${USER_NAME}/comment:${comment_version:-2.2}"
     networks:
       - front_net
       - back_net
