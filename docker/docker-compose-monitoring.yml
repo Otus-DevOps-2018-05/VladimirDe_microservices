@@ -39,7 +39,7 @@ services:
       - metrics_net
 
   alertmanager:
-    image: ${USERNAME}/alertmanager
+    image: ${USER_NAME}/alertmanager
     command:
       - '--config.file=/etc/alertmanager/config.yml'
     ports:
@@ -78,7 +78,7 @@ services:
       - metrics_net
 
   mongo_exporter:
-    image: ${USERNAME}/docker-mongodb-exporter:${mongoexporter_version:-latest}
+    image: ${USER_NAME}/docker-mongodb-exporter:${mongoexporter_version:-latest}
     environment:
       - MONGODB_URL=mongodb://post_db:27017
     networks:
@@ -86,7 +86,7 @@ services:
       - metrics_net
 
   cloudprober:
-    image: ${USERNAME}/cloudprober:${cloudprober_version:-latest}
+    image: ${USER_NAME}/cloudprober:${cloudprober_version:-latest}
     ports:
       - '9313:9313'
     networks:
