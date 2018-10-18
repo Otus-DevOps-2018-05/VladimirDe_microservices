@@ -1,52 +1,59 @@
 version: '3.3'
 services:
+
   post_db:
-    image: mongo:3.2
+    image: "mongo:${mongodb_version:-latest}"
     volumes:
       - post_db:/data/db
+    networks:
+      back_net:
+          aliases:
+            - comment_db
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
+
   ui:
-    image: ${USER_NAME}/ui
+    image: "${USERNAME}/ui:${ui_version:-2.2}"
     ports:
-      - ${UI_PORT}:${UI_PORT}/tcp
+      - "${ui_exposed_web:-9292}:9292/tcp"
+    networks:
+      - front_net
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.ui
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
 
   post:
-    image: ${USER_NAME}/post
-  comment:
-    image: ${USER_NAME}/comment
-
-  prometheus:
-    image: ${USER_NAME}/prometheus
-    ports:
-      - '9090:9090'
-    volumes:
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention=1d'
-
-  node-exporter:
-    image: prom/node-exporter:v0.15.2
-    user: root
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
-
-  mongodb_exporter:
-    image: ${USER_NAME}/mongodb_exporter
+    image: "${USERNAME}/post:${post_version:-2.2}"
+    networks:
+      - back_net
+      - front_net
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: service.post
     environment:
-      - MONGODB_URL='mongodb://comment_db:27017'
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
 
-  blackbox_exporter:
-    image: ${USER_NAME}/blackbox_exporter
+  comment:
+    image: "${USERNAME}/comment:${comment_version:-2.2}"
+    networks:
+      - front_net
+      - back_net
+    environment:
+      - ZIPKIN_ENABLED=${ZIPKIN_ENABLED}
 
 volumes:
   post_db:
-  prometheus_data:
 
-
+networks:
+  front_net:
+    external:
+      name: frontend
+  back_net:
+    external:
+      name: backend
