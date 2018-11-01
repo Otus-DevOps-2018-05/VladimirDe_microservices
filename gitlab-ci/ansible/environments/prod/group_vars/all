@@ -1,0 +1,4 @@
+---
+
+env: prod
+gitlab_runner_docker_privileged: true

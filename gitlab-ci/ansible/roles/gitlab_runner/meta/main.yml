@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Vladimir Denisov
-  description: docker host configuration role
+  description: gitlab runner role
   company: none
   license: BSD
   min_ansible_version: 2.4
@@ -10,5 +10,6 @@ galaxy_info:
       versions:
         - xenial
   galaxy_tags:
-    - system
-dependencies: []
+    - ci
+dependencies:
+  - docker_host
