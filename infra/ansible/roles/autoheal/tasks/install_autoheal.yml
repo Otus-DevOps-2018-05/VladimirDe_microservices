@@ -32,7 +32,7 @@
 - name: Clone reddit microservices git repository
   git:
     dest: ~/reddit-microservices
-    repo: https://github.com/Otus-DevOps-2018-05/loktionovam_microservices.git
+    repo: https://github.com/Otus-DevOps-2018-05/VladimirDe_microservices.git
     version: "{{ autoheal_repo_version }}"
 
 - name: Build autoheal docker image
