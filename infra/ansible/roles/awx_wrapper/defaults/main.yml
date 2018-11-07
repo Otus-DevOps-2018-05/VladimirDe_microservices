@@ -20,7 +20,7 @@ awx_wrapper_gce_username: "{{ mandatory }}"
 awx_wrapper_project_name: otus
 awx_wrapper_project_description: homework
 awx_wrapper_scm_type: git
-awx_wrapper_scm_url: https://github.com/Otus-DevOps-2018-05/loktionovam_microservices.git
+awx_wrapper_scm_url: https://github.com/Otus-DevOps-2018-05/VladimirDe_microservices.git
 awx_wrapper_scm_branch: monitoring-2
 awx_wrapper_tower_verify_ssl: false
 
