@@ -20,7 +20,7 @@ spec:
         component: post
     spec:
       containers:
-      - image: loktionovam/post
+      - image: vladimirdenisov69/post
         name: post
         env:
         - name: POST_DATABASE_HOST
