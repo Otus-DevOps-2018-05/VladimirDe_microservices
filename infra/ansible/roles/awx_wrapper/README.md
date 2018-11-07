@@ -113,4 +113,4 @@ BSD
 Author Information
 ------------------
 
-Aleksandr Loktionov
+Vladimir Denisov
