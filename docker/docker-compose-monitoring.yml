@@ -26,14 +26,14 @@ services:
     networks:
       - front_net
   mongodb_exporter:
-    image: loktionovam/mongodb_exporter:${MONGODB_EXPORTER_VERSION}
+    image: ${USER_NAME}/mongodb_exporter:${MONGODB_EXPORTER_VERSION}
     environment:
       - MONGODB_URL='mongodb://comment_db:27017'
     networks:
       - front_net
       - back_net
   blackbox_exporter:
-    image: loktionovam/blackbox_exporter:${BLACKBOX_EXPORTER_VERSION}
+    image: ${USER_NAME}/blackbox_exporter:${BLACKBOX_EXPORTER_VERSION}
     networks:
       - front_net
       - back_net
@@ -49,7 +49,7 @@ services:
     networks:
       - front_net
   grafana:
-    image: loktionovam/grafana:${GRAFANA_VERSION}
+    image: ${USER_NAME}/grafana:${GRAFANA_VERSION}
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
@@ -76,7 +76,7 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
   stackdriver:
-    image: loktionovam/stackdriver-exporter:${STRACKDRIVER_VERSION}
+    image: ${USER_NAME}/stackdriver-exporter:${STRACKDRIVER_VERSION}
     ports:
       - 9255:9255
     networks:
