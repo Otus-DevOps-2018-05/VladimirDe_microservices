@@ -11,7 +11,7 @@
 - name: Start autoheal docker container
   docker_container:
     name: autoheal
-    image: loktionovam/autoheal:{{ autoheal_image_version }}
+    image: vladimirdenisov69/autoheal:{{ autoheal_image_version }}
     command: /autoheal server --config-file=/autoheal_config.yml
     ports:
       - 9099:9099
