@@ -7,6 +7,6 @@
     - name: Run reddit application container
       docker_container:
         name: reddit-app
-        image: loktionovam/otus-reddit:1.0
+        image: vladimirdenisov69/otus-reddit:1.0
         ports:
           - "9292:9292"

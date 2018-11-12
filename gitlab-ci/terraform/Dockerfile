@@ -1,5 +1,5 @@
 FROM alpine:edge
-MAINTAINER "Aleksandr Loktionov <loktionovam@gmail.com>"
+MAINTAINER "Vladimir Denisov <vladimirdenisov69@gmail.com>"
 
 ENV TERRAFORM_VERSION=0.11.8
 ENV TERRAFORM_SHA256SUM=84ccfb8e13b5fce63051294f787885b76a1fedef6bdbecf51c5e586c9e20c9b7

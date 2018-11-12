@@ -60,7 +60,7 @@ Example Playbook
 ```yaml
     - hosts: docker-hosts
       roles:
-         - { role: loktionovam.docker_host, docker_host_version: edge }
+         - { role: vladimirde.docker_host, docker_host_version: edge }
 ```
 
 License
@@ -71,4 +71,4 @@ BSD
 Author Information
 ------------------
 
-Aleksandr Loktionov
+Vladimir Denisov
