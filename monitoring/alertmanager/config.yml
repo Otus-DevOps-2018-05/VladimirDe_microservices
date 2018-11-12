@@ -1,5 +1,5 @@
 global:
-  slack_api_url: 'https://hooks.slack.com/services/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'
+  slack_api_url: 'https://hooks.slack.com/services/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'
 
 route:
   receiver: 'slack-notifications'
@@ -14,7 +14,7 @@ route:
 receivers:
   - name: 'slack-notifications'
     slack_configs:
-      - channel: '#yurii_fisakov'
+      - channel: '#vladimir_denisov'
 
   - name: 'email'
     email_configs:
