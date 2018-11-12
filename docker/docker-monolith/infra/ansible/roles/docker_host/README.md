@@ -60,7 +60,7 @@ Example Playbook
 ```yaml
     - hosts: docker-hosts
       roles:
-         - { role: vladimirde.docker_host, docker_host_version: edge }
+         - { role: vladimirdenisov69.docker_host, docker_host_version: edge }
 ```
 
 License
