@@ -47,7 +47,7 @@ services:
     networks:
       - metrics_net
     environment:
-      - GMAIL_ACCOUNT=fisakov.root@gmail.com
+      - GMAIL_ACCOUNT=vladimirdenisov69@gmail.com
       - GMAIL_AUTH_TOKEN=secret
 
 
