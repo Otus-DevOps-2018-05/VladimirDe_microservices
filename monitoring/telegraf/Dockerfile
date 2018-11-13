@@ -1,3 +1,2 @@
-FROM telegraf:1.7-alpine
-LABEL version="1.7"
+FROM telegraf:1.5
 COPY telegraf.conf /etc/telegraf/telegraf.conf
