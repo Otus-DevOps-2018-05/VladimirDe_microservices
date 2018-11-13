@@ -56,7 +56,6 @@ resource "null_resource" "app" {
       "while fuser /var/lib/dpkg/lock ; do echo 'dpkg locked, waiting...'; sleep 3;done",
     ]
   }
-
   provisioner "local-exec" {
     command     = "ansible-playbook playbooks/gce_dynamic_inventory_setup.yml --extra-vars='env=${var.environment}'"
     working_dir = "../../ansible"
@@ -72,11 +71,11 @@ resource "null_resource" "app" {
   }
 
   provisioner "local-exec" {
-    command     = "ansible-playbook -l ${google_compute_address.app_ip.address} --private-key ${var.private_key_path} playbooks/${var.app_name}.yml"
+    command     = "ansible-playbook -l ${google_compute_address.app_ip.address} --private-key ${var.private_key_path} playbooks/reddit_app.yml"
     working_dir = "../../ansible"
 
     environment {
-      ANSIBLE_CONFIG = "./ansible.cfg"
+      ANSIBLE_CONFIG      = "./ansible.cfg"
     }
   }
 }
@@ -105,45 +104,6 @@ resource "google_compute_firewall" "firewall_web" {
   allow {
     protocol = "tcp"
     ports    = ["80", "443"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["docker-host"]
-}
-
-resource "google_compute_firewall" "firewall_grafana" {
-  name    = "allow-grafana-${terraform.workspace}"
-  network = "default"
-
-  allow {
-    protocol = "tcp"
-    ports    = ["3000"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["docker-host"]
-}
-
-resource "google_compute_firewall" "firewall_kibana" {
-  name    = "allow-kibana-${terraform.workspace}"
-  network = "default"
-
-  allow {
-    protocol = "tcp"
-    ports    = ["5601"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-  target_tags   = ["docker-host"]
-}
-
-resource "google_compute_firewall" "firewall_zipkin" {
-  name    = "allow-zipkin-${terraform.workspace}"
-  network = "default"
-
-  allow {
-    protocol = "tcp"
-    ports    = ["9411"]
   }
 
   source_ranges = ["0.0.0.0/0"]

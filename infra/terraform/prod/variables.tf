@@ -42,16 +42,7 @@ variable "app_provision_enabled" {
   default     = true
 }
 
-variable "app_name" {
-  description = "Application name (reddit_app or reddit_microservices)"
-  default     = "reddit_app"
-}
-
 variable "environment" {
   description = "Used environment in the ansible provision"
   default     = "prod"
-}
-
-variable mgmt_host_disk_image {
-  description = "Disk image"
 }
