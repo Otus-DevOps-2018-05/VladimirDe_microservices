@@ -1,161 +1,22 @@
 # VladimirDe_microservices
 
-### Homework-22: Kubernetes. Запуск кластера и приложения. Модель безопасности
+# Homework - monitoring-2
+  #### Основное задание
+  - Т.к. мы разделили сервисы приложения и сервисы мониторинга на разные compose файлы, то необходимо создать общие сети вручную и отметить их как 'external' в файлах docker-compose:
+    -   ```docker network create --subnet 10.0.2.0/24 backend && docker network create --subnet 10.0.1.0/24 frontend```
+  ### Задания со *:
+  #### В Makefile добавлены новые сервисы
+  #### Добавить сбор метрик, отдаваемых докер демоном в prometheus:
+   - Думал как лучше сделать, чтобы достучатся до хоста из контейнера с прометеем. Решил сделать ещё одну сеть, в которой явно задал адрес gateway:    
+      - ``` docker network create --subnet 10.0.3.0/30 --gateway 10.0.3.1 hostnet ```
+      
+        Эту сеть добавляем как external в docker-compose-monitoring.yml и подключаем к контейнеру с прометеем. Также необходимо добавить правило файрвола, которое разрешает подключение к хосту c интерфейса сети hostnet - ``` sudo firewall-cmd --permanent --direct --add-rule ipv4 filter INPUT 4 -i br-14d3a37d8190 -j ACCEPT && sudo firewall-cmd --reload ```
 
-Основное задание: развернуть локальное окружение для работы с k8s; развернуть k8s в GKE; запустить reddit в k8s
-
-Задание со*: развернуть k8s в GKE с помощью terraform; создать YAML манифесты для включения k8s dashboard
-
-### 22.1 Что было сделано
-
-- Развернуто и настроено локальное окружение k8s через minicube
-
-- Сконфигурированы `deployment` и `service` файлы reddit приложения
-
-- Добавлен манифест с dev `namespace`
-
-- Добавлена конфигурация `terraform` для провиженинга k8s в GKE - модуль gke, который развертывает k8s кластер и настраивает файерволл
-
-- Добавлены YAML манифесты для развертывания k8s dashboard
-
-### 22.2 Как запустить проект
-
-- Развернуть kubernetes в GKE
-
-```
-cd kubernetes/terraform
-terraform init
-terraform apply -auto-approve=true
-cd kubernetes
-terraform init
-terraform apply -auto-approve=true
-```
-
-- Сконфигурировать `kubectl` для работы с вновь созданным кластером
-
-```
-export GKE_CLUSTER=cluster-name-here
-export GCP_ZONE=zone-here
-export GCP_PROJECT=project-here
-gcloud container clusters get-credentials $GKE_CLUSTER --zone $GCP_ZONE --project $GCP_PROJECT
-```
-
-- Разрешить пользователю создавать роли в Kubernetes, настроив `name: SETUP_USER_ACCOUNT_HERE` в файле `kubernetes/reddit/cluster-admin-rolebinding.yml` и выполнив
-
-```
-kubectl apply -f cluster-admin-rolebinding.yml
-```
-
-- Загрузить dashboard в kubernetes
-
-```
-kubectl apply -f kubernetes-dashboard.yaml
-kubectl apply -f kubernetes-dashboard-rolebinding.yml
-```
-
-- Создать `dev` namespace
-
-```
-kubectl apply -f dev-namespace.yml
-```
-
-- Задеплоить reddit приложение в `dev`
-
-```
-kubectl apply -f . -n dev
-````
-
-### 22.3 Как проверить проект
-
-- Проверка dashboard. После выполнения команды
-
-```
-kubectl proxy
-```
-
-должен быть доступен dashboard по адресу <http://localhost:8001/ui>
-
-- Проверка reddit приложеня. 
-
-```
-REDDIT_IP=$(kubectl get nodes  -o json | jq --raw-output --arg ext_ip "ExternalIP" '.items[0].status.addresses[] | select( .type == $ext_ip) | .address')
-```
-
-```
-REDDIT_PORT=$(kubectl get services ui -n dev -o json | jq '.spec.ports[].nodePort')
-```
-
-Приложение должно быть доступно по адресу <http://$REDDIT_IP:$REDDIT_PORT>
-
-### Homework-21: Введение в Kubernetes
-
-Основное задание: Разобрать на практике все компоненты kubernetes, развернуть их вручную используя Hard Way, ознакомиться с описанием основных примитивов и его дальнейшим запуском в Kubernetes
-
-Задание со*: Описать установку компонентов kubernetes из туториала `Kubernetes The Hard Way` в виде Ansible-плейбуков в папке `kubernetes/ansible`
-
-### 21.1 Что было сделано
-
-- Пройден туториал `Kubernetes The Hard Way` вручную, проверена загрузка deployment-ов (ui, post, mongo, comment) и запуск подов
-
-- Написаны ansible плейбуки полностью автоматизирующие `Kubernetes The Hard Way`
-
-```
-02-client-tools.yml
-03-create-controller-instance.yml
-03-create-worker-instance.yml
-03-provisioning-compute-resources.yml
-04-certificate-authority.yml
-04-copy-creds-to-controller.yml
-04-copy-creds-to-worker.yml
-04-prepare-node.yml
-04-worker-instance-certificate.yml
-05-generate-kubeconfigs.yml
-05-generate-service-kubeconfig.yml
-05-generate-worker-kubeconfig.yml
-06-data-encryption.yml
-07-bootstraping-etcd.yml
-08-bootstrapping-kubernetes-controllers.yml
-08-kubernetes-frontend-load-balancer.yml
-09-bootstrapping-kubernetes-workers.yml
-10-configuring-kubectl.yml
-11-pod-network-routes.yml
-12-dns-addon.yml
-kubernetes_the_hard_way.yml
-```
-
-### 21.2 Как запустить проект
-
-Предполагается, что gcloud уже настроен и есть учетная запись сервисного аккаунта google из под которой будет выполняться создание в GCP инстансов, сетей и т. д.
-
-```
-cd kubernetes/ansible
-virtualenv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-export GCE_REGION=$(gcloud config get-value compute/region 2> /dev/null)
-export GCE_CREDENTIALS_FILE_PATH=~/.ansible/gce-service-account.json
-export GCE_EMAIL=user@docker-1234.iam.gserviceaccount.com
-export GCE_PROJECT=docker-1234
-ansible-playbook -K kubernetes_the_hard_way.yml
-```
-
-### 21.3 Как проверить проект
-
-Для проверки инсталляции kubernetes нужно:
-
-- Выполнить шаги описанные в <https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/13-smoke-test.md>
-
-- Проверить запуск подов `ui, post, mongo, comment`
-
-```
-cd kubernetes/reddit
-for DEPLOYMENT in *.yml; do kubectl apply -f $DEPLOYMENT;done
-```
-
-# Homework-20: Логирование и распределенная трассировка микросервисов
-  Основное задание: запуск, конфигурация стека логирования EFK; логирование микросервисов
-  Задания со *: multilinе grok patter в фильтр Fluentd 
-  Задания со **: Трейсинг через zipkin - добавил описание в PR
+        В /etc/docker/daemon.json задаём адрес интерфейса в созданной сети, на котором будет доступен просмотр метрик - 10.0.3.1  (чтобы порт был доступен только для одной сети )
+  #### Сбор метрик через telegraf
+   - Изначально поднял контейнер с telegraf и забирал метрики в прометей, но не нашёл нормальных дашбордов для графаны в такой связке. Потому добавил ещё контейнер с influxdb, в которую telegraf отправляет метрики. И в графане подключил influxdb как datasource. Дашборд положил в 'monitoring/grafana/dashboards/docker-metrics-per-container.json'
+  #### Настройка email уведомлений в alertmanager
+   - Сгенерировал application password для gmail аккаунта и добавил отправку уведомлений на почту. Логин и пароль передаются через ENV 
 
 ## Homework-18: Введение в мониторинг. Системы мониторинга
 
