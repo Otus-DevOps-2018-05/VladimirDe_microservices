@@ -1,5 +1,5 @@
-# loktionovam_microservices
-loktionovam microservices repository
+# vladimirde_microservices
+vladimir denisov microservices repository
 
 ## Homework-12: Технология контейнеризации. Введение в Docker
 
