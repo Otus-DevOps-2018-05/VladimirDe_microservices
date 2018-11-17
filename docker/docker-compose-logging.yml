@@ -1,24 +1,5 @@
 version: '3'
 services:
-
-  fluentd:
-    image: ${USERNAME}/fluentd
-    ports:
-      - "24224:24224"
-      - "24224:24224/udp"
-
-  elasticsearch:
-    image: elasticsearch
-    expose:
-      - 9200
-    ports:
-      - "9200:9200"
-
-  kibana:
-    image: kibana
-    ports:
-      - "5601:5601"
-
   zipkin:
     image: openzipkin/zipkin
     ports:
@@ -27,10 +8,24 @@ services:
       - front_net
       - back_net
 
+  fluentd:
+    image: ${USER_NAME}/fluentd:${FLUENTD_VERSION}
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+
+  elasticsearch:
+    image: elasticsearch:${ELASTICSEARCH_VERSION}
+    expose:
+      - 9200
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: kibana:${KIBANA_VERSION}
+    ports:
+      - "5601:5601"
+
 networks:
-  front_net:
-    external:
-      name: frontend
   back_net:
-    external:
-      name: backend
+  front_net:
