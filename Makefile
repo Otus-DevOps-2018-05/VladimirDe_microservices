@@ -1,4 +1,4 @@
-DOCKER_REGISTRY_USER ?= loktionovam
+DOCKER_REGISTRY_USER ?= vladimirdenisov69
 
 UI_DOCKER_DIR ?= src/ui
 UI_DOCKER_IMAGE_NAME ?= ui

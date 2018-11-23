@@ -1,6 +1,0 @@
----
-- name: Run reddit docker container
-  hosts: tag_docker-host
-
-  roles:
-     - role: reddit_monolith

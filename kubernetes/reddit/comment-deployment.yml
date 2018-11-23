@@ -20,7 +20,7 @@ spec:
         component: comment
     spec:
       containers:
-      - image: vladimirdenisov69/comment
+      - image: loktionovam/comment
         name: comment
         env:
         - name: COMMENT_DATABASE_HOST
