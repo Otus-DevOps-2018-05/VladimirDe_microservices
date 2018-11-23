@@ -13,4 +13,14 @@ __pycache__
 .venv
 *.pyc
 .env
-.DS_Store
+*.secrets
+secrets.tar
+pytestdebug.log
+infra/ansible/roles/geerlingguy*
+kubernetes/ansible/files/*.pem
+kubernetes/ansible/files/*.csr
+kubernetes/ansible/files/*.kubeconfig
+kubernetes/ansible/files/encryption-config.yaml
+kubernetes/reddit/cluster-admin-rolebinding.yml
+*.tgz
+
