@@ -1,68 +1,17 @@
 version: '3.3'
 services:
-
   prometheus:
-    image: ${USER_NAME}/prometheus
+    image: ${USER_NAME}/prometheus:${PROMETHEUS_VERSION}
     ports:
       - '9090:9090'
     volumes:
       - prometheus_data:/prometheus
+    networks:
+      - front_net
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention=1d'
-    networks:
-      - front_net
-      - metrics_net
-      - docker2prom
-    extra_hosts:
-      - "host:10.0.3.1"
-
-  sidecar:
-    image: jaels/docker-debug
-    networks:
-      - docker2prom
-      - metrics_net
-
-  grafana:
-    image: grafana/grafana:5.0.0
-    volumes:
-      - grafana_data:/var/lib/grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=secret
-    depends_on:
-      - prometheus
-    ports:
-      - 3000:3000
-    networks:
-      - metrics_net
-
-  alertmanager:
-    image: ${USER_NAME}/alertmanager
-    command:
-      - '--config.file=/etc/alertmanager/config.yml'
-    ports:
-      - 9093:9093
-    networks:
-      - metrics_net
-    environment:
-      - GMAIL_ACCOUNT=vladimirdenisov69@gmail.com
-      - GMAIL_AUTH_TOKEN=secret
-
-
-  cadvisor:
-    image: google/cadvisor:v0.29.0
-    volumes:
-      - '/:/rootfs:ro'
-      - '/var/run:/var/run:rw'
-      - '/sys:/sys:ro'
-      - '/var/lib/docker/:/var/lib/docker:ro'
-    ports:
-      - '8080:8080'
-    networks:
-      - metrics_net
-
   node-exporter:
     image: prom/node-exporter:v0.15.2
     user: root
@@ -75,64 +24,83 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.ignored-mount-points="^/(sys|proc|dev|host|etc)($$|/)"'
     networks:
-      - metrics_net
-
-  mongo_exporter:
-    image: ${USER_NAME}/docker-mongodb-exporter:${mongoexporter_version:-latest}
+      - front_net
+  mongodb_exporter:
+    image: loktionovam/mongodb_exporter:${MONGODB_EXPORTER_VERSION}
     environment:
-      - MONGODB_URL=mongodb://post_db:27017
+      - MONGODB_URL='mongodb://comment_db:27017'
     networks:
-      - back_net
-      - metrics_net
-
-  cloudprober:
-    image: ${USER_NAME}/cloudprober:${cloudprober_version:-latest}
-    ports:
-      - '9313:9313'
-    networks:
-      - metrics_net
       - front_net
       - back_net
-
-  telegraf:
-    image: jaels/telegraf
+  blackbox_exporter:
+    image: loktionovam/blackbox_exporter:${BLACKBOX_EXPORTER_VERSION}
     networks:
-      - metrics_net
+      - front_net
+      - back_net
+  cadvisor:
+    image: google/cadvisor:v${CADVISOR_VERSION}
     volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock'
-    depends_on:
-      - influxdb
-
-  influxdb:
-    image: influxdb
+      - '/:/rootfs:ro'
+      - '/var/run:/var/run:rw'
+      - '/sys:/sys:ro'
+      - '/var/lib/docker/:/var/lib/docker:ro'
     ports:
-      - '8086:8086'
-    volumes:
-      - 'influxdb_data:/var/lib/influxdb'
+      - '8080:8080'
     networks:
-      - metrics_net
+      - front_net
+  grafana:
+    image: loktionovam/grafana:${GRAFANA_VERSION}
+    volumes:
+      - grafana_data:/var/lib/grafana
     environment:
-      - INFLUXDB_DB=telegraf
-      - INFLUXDB_ADMIN_USER=root
-      - INFLUXDB_ADMIN_PASSWORD=secret
-      - INFLUXDB_USER=telegraf
-      - INFLUXDB_USER_PASSWORD=secret
-      - INFLUXDB_WRITE_USER=telegraf
-      - INFLUXDB_WRITE_USER_PASSWORD=secret
-
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=secret
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    networks:
+      - front_net
+  alertmanager:
+    image: ${USER_NAME}/alertmanager:${ALERTMANGER_VERSION}
+    ports:
+      - 9093:9093
+    networks:
+      - front_net
+  telegraf:
+    image: ${USER_NAME}/telegraf:${TELEGRAF_VERSION}
+    ports:
+      - 9273:9273
+    networks:
+      - front_net
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  stackdriver:
+    image: loktionovam/stackdriver-exporter:${STRACKDRIVER_VERSION}
+    ports:
+      - 9255:9255
+    networks:
+      - front_net
+    environment:
+      - STACKDRIVER_EXPORTER_MONITORING_METRICS_TYPE_PREFIXES=${STACKDRIVER_METRICS_PREFIXES}
+      - GOOGLE_APPLICATION_CREDENTIALS=/gce-service-account.json
+      - STACKDRIVER_EXPORTER_GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID}
+  trickster:
+    image: tricksterio/trickster:${TRICKSTER_VERSION}
+    ports:
+      - 8082:8082
+      - 8000:8000
+      - 8001:8001
+    networks:
+      - front_net
+    environment:
+      - TRK_LOG_LEVEL=INFO
+      - TRK_ORIGIN=http://prometheus:9090
+      - TRK_PROXY_PORT=8000
+      - TRK_METRICS_PORT=8001
 volumes:
   prometheus_data:
   grafana_data:
-  influxdb_data:
-
 networks:
-  front_net:
-    external:
-      name: frontend
   back_net:
-    external:
-      name: backend
-  docker2prom:
-    external:
-      name: hostnet
-  metrics_net:
+  front_net:

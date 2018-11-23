@@ -1,6 +1,0 @@
----
-- name: Install docker container runtime
-  hosts: tag_docker-host
-
-  roles:
-    - docker_host
